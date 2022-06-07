@@ -1,5 +1,7 @@
 # 非破壊的な配列操作 : `for-of` vs `.reduce()` vs `.flatMap()`
 
+[Processing Arrays non-destructively](https://2ality.com/2022/05/processing-arrays-non-destructively.html)の日本語訳
+
 ここでは、以下の3つの配列操作について注目する。
 
 - `for-of`ループ
