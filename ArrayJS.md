@@ -23,6 +23,21 @@
 
 これら全てを非破壊的(入力の配列が変わらないこと)に実装する。出力される配列は、元の配列を操作したものでなく新しく生成されたものである。
 
+- [非破壊的な配列操作 : `for-of` vs `.reduce()` vs `.flatMap()`](#非破壊的な配列操作--for-of-vs-reduce-vs-flatmap)
+  - [1 `for-of`ループの配列操作](#1-for-ofループの配列操作)
+    - [1.1 `for-of`でフィルタリングする](#11-for-ofでフィルタリングする)
+    - [1.2 `for-of`でマッピングする](#12-for-ofでマッピングする)
+    - [1.3 `for-of`で展開する](#13-for-ofで展開する)
+    - [1.4 `for-of`でフィルターマッピングする](#14-for-ofでフィルターマッピングする)
+    - [1.5 `for-of`で統計量を計算する](#15-for-ofで統計量を計算する)
+    - [1.6 `for-of`で見つける](#16-for-ofで見つける)
+    - [1.7 `for-of`で状態を調べる](#17-for-ofで状態を調べる)
+    - [1.8 `for-of`を使う](#18-for-ofを使う)
+    - [1.9 ジェネレーターと`for-of`](#19-ジェネレーターとfor-of)
+  - [`.reduce()`メソッド](#reduceメソッド)
+    - [2.1 `.reduce()`を使ったフィルタリング](#21-reduceを使ったフィルタリング)
+    - [2.2 `reduce()`でマッピング](#22-reduceでマッピング)
+
 ## 1 `for-of`ループの配列操作
 
 `for-of`は非破壊的に配列変形を行うことができる。
@@ -342,6 +357,32 @@ const filterArray = (arr, callback) => arr.reduce (
     if (callback(elem)) {
       acc.push(elem);
     }
+    return acc;
+  },
+  []
+);
+```
+
+### 2.2 `reduce()`でマッピング
+
+```js
+const mapArray = (arr, callback) => arr,reduce (
+  (acc, elem) => [...acc, callback(elem)],
+  []
+);
+
+assert.deepEqual (
+  mapArray(['a', 'b', 'c'], atr => str + str),
+  ['aa', 'bb', 'cc']
+);
+```
+
+より効率的なバージョン
+
+```js
+const mapArray = (arr, callback) => arr.reduce (
+  (acc, elem) => {
+    acc.push(callback(elem));
     return acc;
   },
   []
