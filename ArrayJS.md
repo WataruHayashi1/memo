@@ -37,6 +37,8 @@
   - [`.reduce()`メソッド](#reduceメソッド)
     - [2.1 `.reduce()`を使ったフィルタリング](#21-reduceを使ったフィルタリング)
     - [2.2 `reduce()`でマッピング](#22-reduceでマッピング)
+    - [2.3 `.reduce()`で展開](#23-reduceで展開)
+    - [2.4 `.reduce()`でフィルターマッピング](#24-reduceでフィルターマッピング)
 
 ## 1 `for-of`ループの配列操作
 
@@ -383,6 +385,85 @@ assert.deepEqual (
 const mapArray = (arr, callback) => arr.reduce (
   (acc, elem) => {
     acc.push(callback(elem));
+    return acc;
+  },
+  []
+);
+```
+
+### 2.3 `.reduce()`で展開
+
+```js
+const collectFruits = (persons) => persons.reduce (
+  (acc, person) => [...acc, ...person.fruits],
+  []
+);
+
+const PERSONS = [
+  {
+    name: 'Jane',
+    fruits: ['strawberry', 'raspberry'],
+  },
+  {
+    name: 'John',
+    fruits: ['apple', 'banana', 'orange'],
+  },
+  {
+    name: 'Rex',
+    fruits: ['melon'],
+  },
+];
+
+assert.deepEqual (
+  collectFruits(PERSONS),
+  ['strawberry', 'raspberry', 'apple', 'banana', 'orange', 'melon']
+);
+```
+
+別バージョン
+
+```js
+const collectFruits = (persons) => persons.reduce(
+  (acc, person) => {
+    acc.push(...person.fruits);
+    return acc;
+  },
+  []
+);
+```
+
+### 2.4 `.reduce()`でフィルターマッピング
+
+```js
+const getTitles = (movies, minRating) => movies.reduce (
+  (acc, movie) => (movie.rating >= minRating)
+    ? [...acc, movie.title]
+    : acc,
+  []
+);
+
+const MOVIES = [
+  { title: 'Inception', rating: 8.8 },
+  { title: 'Arrival', rating: 7.9 },
+  { title: 'Groundhog Day', rating: 8.1 },
+  { title: 'Back to the Future', rating: 8.5 },
+  { title: 'Being John Malkovich', rating: 7.8 },
+];
+
+assert.deepEqual (
+  getTitles(MOVIES, 8),
+  ['Inception', 'Groundhog Day', 'Back to the Future']
+);
+```
+
+より効率的なバージョン
+
+```js
+const getTitles = (movies, minRating) => movies,reduce (
+  (acc, movie) => {
+    if (movie.rating >= minRating) {
+      acc.push(movie.title);
+    }
     return acc;
   },
   []
