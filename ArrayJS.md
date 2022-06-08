@@ -276,3 +276,74 @@ assert.deepEqual (
   ['aa', 'bb', 'cc']
 );
 ```
+
+## `.reduce()`メソッド
+
+`.reduce()`メソッドは配列の統計量を計算するのに用いられる。`.reduce()`は以下のアルゴリズムに基づいている。
+
+- 空の配列に対して有効な統計量を初期化する
+- 配列をループし、それぞれの要素ごとに
+  - 現在の要素と前の統計量を組み合わせた新しい統計量を計算する
+
+`.reduce()`が登場する前は、`for-of`を使ってアルゴリズムを実装していた。以下に、例として配列の連結を挙げる
+
+```js
+function concatElements(arr) {
+  let summary = ''; // 初期化
+  for (const element of arr) {
+    summary = summary + element; // 更新
+  }
+  return summary;
+}
+
+assert.equal (
+  concatElements(['a', 'b', 'c']),
+  'abc'
+);
+```
+
+`.reduce()`メソッドはループと合計値の追跡をするので、ユーザは初期化と更新に注目できる。以後は、合計値の大まかな言い換えとしてアキュムレータという単語を使う。`.reduce()`は2つのパラメータを持つ。
+
+1. コールバック
+  - 入力:前のアキュムレータと現在の要素
+  - 出力:新たなアキュムレータ
+2. アキュムレータの初期値
+
+以下のコードでは、`concatElements()`の実装に`.reduce()`を使っている。
+
+```js
+const concatElements = (arr) => arr.reduce (
+  (accumulator, element) => accumulator + element, // 更新
+  '' // 初期値
+);
+```
+
+### 2.1 `.reduce()`を使ったフィルタリング
+
+`.reduce()`は非常に汎用的である。以下ではフィルタリングを実装する。
+
+```js
+const filterArray = (arr, callback) => arr.reduce (
+  (acc, elem) => callback(elem) ? [...acc, elem] : acc,
+  []
+);
+
+assert.deepEqual (
+  filterArray(['', 'a', '', 'b'], str => str.length > 0),
+  ['a', 'b']
+);
+```
+
+残念なことに、JavaScriptの配列は非破壊的に要素を追加することに関しては、あまり効率的でない(他の関数型言語の連結リストとは対照的に)。したがって、以下のようにアキュムレータを変化させるほうが効率的である。
+
+```js
+const filterArray = (arr, callback) => arr.reduce (
+  (acc, elem) => {
+    if (callback(elem)) {
+      acc.push(elem);
+    }
+    return acc;
+  },
+  []
+);
+```
