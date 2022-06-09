@@ -41,6 +41,7 @@
     - [2.4 `.reduce()`でフィルターマッピング](#24-reduceでフィルターマッピング)
     - [2.5 `.reduce()`で統計量を計算](#25-reduceで統計量を計算)
     - [2.6 `.reduce()`で見つける](#26-reduceで見つける)
+    - [2.7 `.reduce()`で状態を調べる](#27-reduceで状態を調べる)
 
 ## 1 `for-of`ループの配列操作
 
@@ -532,3 +533,25 @@ assert.deepEqual (
 
 ここで、1つの`.reduce()`に関する制限がある。それは、`for-of`とは違い、指定の値を1度見つけたとしても走査をやめることはないということである。
 
+### 2.7 `.reduce()`で状態を調べる
+
+以下は、標準的な配列のメソッドである`.every()`を`.reduce()`を使って実装したものである
+
+```js
+const everyArrayElement = (arr, condition) => arr.reduce (
+  (acc, elem) => !acc ? acc : condition(elem),
+  true
+);
+
+assert.equal (
+  everyArrayElement(['a', '', 'b'], str => str.length > 0),
+  false
+);
+
+assert.equal (
+  everyArrayElement(['a', 'b'], str => str.length > 0),
+  true
+);
+```
+
+2.6節と同じく、`.reduce()`からはやく抜け出せると、より効率的になる
