@@ -39,6 +39,8 @@
     - [2.2 `reduce()`でマッピング](#22-reduceでマッピング)
     - [2.3 `.reduce()`で展開](#23-reduceで展開)
     - [2.4 `.reduce()`でフィルターマッピング](#24-reduceでフィルターマッピング)
+    - [2.5 `.reduce()`で統計量を計算](#25-reduceで統計量を計算)
+    - [2.6 `.reduce()`で見つける](#26-reduceで見つける)
 
 ## 1 `for-of`ループの配列操作
 
@@ -469,3 +471,64 @@ const getTitles = (movies, minRating) => movies,reduce (
   []
 );
 ```
+
+### 2.5 `.reduce()`で統計量を計算
+
+`.reduce()`はアキュムレータを変化させずに効率的に統計量を計算したいときに突出した動作をする。
+
+```js
+const getAverageGrade = (students) => {
+  const cumOfGrades = students.reduce (
+    (acc, student) => acc + student.grade,
+    0
+  );
+  return sumOfGrades / students.length;
+};
+
+const STUDENTS = [
+  {
+    id: 'qk4k4yif4a',
+    grade: 4.0,
+  },
+  {
+    id: 'r6vczv0ds3',
+    grade: 0.25,
+  },
+  {
+    id: '9s53dn6pbk',
+    grade: 1,
+  },
+];
+
+assert.equal (
+  getAverageGrade(STUDENTS),
+  1,75
+);
+```
+
+注意 : デシマルの端数の計算結果は丸め誤差が発生する([詳細](https://exploringjs.com/impatient-js/ch_numbers.html#the-precision-of-numbers-careful-with-decimal-fractions))
+
+### 2.6 `.reduce()`で見つける
+
+以下は、標準的な配列のメソッドである`.find()`を`.reduce()`を使って実装したものである
+
+```js
+const findInArray = (arr, callback) => arr.reduce (
+  (acc, value, index) => (acc === undefined && callback(value))
+    ? {index, value}
+    : acc,
+  undefined
+);
+
+assert.deepEqual (
+  findInArray(['', 'a', '', 'b'], str => str.length > 0),
+  {index: 1, value: 'a'}
+);
+assert.deepEqual (
+  findInArray(['', 'a', '', 'b'], str => str.length > 1),
+  undefined
+);
+```
+
+ここで、1つの`.reduce()`に関する制限がある。それは、`for-of`とは違い、指定の値を1度見つけたとしても走査をやめることはないということである。
+
