@@ -43,6 +43,13 @@
     - [2.6 `.reduce()`で見つける](#26-reduceで見つける)
     - [2.7 `.reduce()`で状態を調べる](#27-reduceで状態を調べる)
     - [2.8 `.reduce()`を使う](#28-reduceを使う)
+  - [3 `.flatMap()`メソッド](#3-flatmapメソッド)
+    - [3.1 `.flatMap()`でフィルタリング](#31-flatmapでフィルタリング)
+    - [3.2 `.flatMap()`でマッピング](#32-flatmapでマッピング)
+    - [`.flatMap()`でフィルターマッピング](#flatmapでフィルターマッピング)
+    - [3.4 `flatMap()`で展開](#34-flatmapで展開)
+    - [3.5 `.flatMap()`は配列しか生成できない](#35-flatmapは配列しか生成できない)
+    - [3.6 `.flatMap()`を使う](#36-flatmapを使う)
 
 ## 1 `for-of`ループの配列操作
 
@@ -571,3 +578,114 @@ assert.equal (
 `.reduce()`は要素の合計値のような統計量を計算するのに便利なツールである。
 
 残念なことに、JavaScriptは非破壊的かつ徐々に配列を作成することは得意でない。このためJavaScriptは、イミュータブルなリストがあるほかの言語の操作に対応するより`.reduce()`を使う機会が少なくなっている。
+
+## 3 `.flatMap()`メソッド
+
+通常の`.map()`メソッドは入力されたそれぞれの要素を1つの要素として出力する。
+
+これとは対照的に、`.flatMap()`は入力された要素を0個以上の要素に変換する。そのため、コールバックは値を返さずに、値の配列を返す。
+
+```js
+assert.equal (
+  [0, 1, 2, 3].flatMap (num => new Array(num).fill(String(num)),
+  ['1', '2', '2', '3', '3', '3']
+);
+```
+
+### 3.1 `.flatMap()`でフィルタリング
+
+```js
+const filterArray = (arr, callback) => arr.flatMap (
+  elem => callback(elem) ? [elem] : []
+);
+
+assert.deepEqual (
+  filterArray(['', 'a', '', 'b'], str => str.length > 0),
+  ['a', 'b']
+);
+```
+
+### 3.2 `.flatMap()`でマッピング
+
+```js
+const mapArray = (arr, callback) => arr.flatMap (
+  elem => [callback(elem)]
+);
+
+assert.deepEqual (
+  mapArray(['a', 'b', 'c'], str => str + str),
+  ['aa', 'bb', 'cc']
+);
+```
+
+### `.flatMap()`でフィルターマッピング
+
+```js
+const getTitles = (movies, minRating) => movies.flatMap (
+  (movie) => (movie.rating >= minRating) ? [movie.title] : []
+);
+
+const MOVIES = [
+  { title: 'Inception', rating: 8.8 },
+  { title: 'Arrival', rating: 7.9 },
+  { title: 'Groundhog Day', rating: 8.1 },
+  { title: 'Back to the Future', rating: 8.5 },
+  { title: 'Being John Malkovich', rating: 7.8 },
+];
+
+assert.deepEqual (
+  getTitles(MOVIES, 8),
+  ['Inception', 'Groundhog Day', 'Back to the Future']
+);
+```
+
+### 3.4 `flatMap()`で展開
+
+```js
+const collectFruits = (persons) => persons.flatMap (
+  person => person.fruits
+);
+
+const PERSONS = [
+  {
+    name: 'Jane',
+    fruits: ['strawberry', 'raspberry'],
+  },
+  {
+    name: 'John',
+    fruits: ['apple', 'banana', 'orange'],
+  },
+  {
+    name: 'Rex',
+    fruits: ['melon'],
+  },
+];
+
+assert.deepEqual (
+  collectFruits(PERSONS),
+  ['strawberry', 'raspberry', 'apple', 'banana', 'orange', 'melon']
+);
+```
+
+### 3.5 `.flatMap()`は配列しか生成できない
+
+`.flatMap()`では、配列しか生成できない。そのため、以下のことができない
+
+- `.flatMap()`で統計量を計算する
+- `.flatMap()`で検索する
+- `.flatMap()`で状態を調べる
+
+配列に含まれる値を生成することはできるでしょうが、コールバック呼び出しの間にデータを渡すことはできない。例えば、走査の途中で何か見つけたとしても抜け出す手段はない。
+
+### 3.6 `.flatMap()`を使う
+
+`.flatMap()`のメリットは、
+
+- フィルタリングとマッピングを同時に実行できる
+- 入力を0個以上の要素に展開できる
+
+また、比較的動作が理解しやすい点もメリットだと考えられる。しかし、`for-of`や`.reduce()`のように多機能ではない
+
+- 配列しか出力できない
+- コールバックの呼び出しの間は値を渡せない
+- 途中で抜け出せない
